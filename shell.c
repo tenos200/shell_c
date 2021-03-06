@@ -135,6 +135,8 @@ void commands(char **tokens, char *path, int args) {
 		} else {
 			add_alias(tokens, args);
 		}
+	} else if(strcmp(tokens[0], "unalias") == 0) {
+		remove_alias(tokens, args);
 	} else {
 		process(tokens, args);
 	}
