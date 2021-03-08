@@ -82,12 +82,11 @@ int main(void) {
 int parse_input(char *inp, char *path, int invoke){
 	
 	int max_tokens_number = 50;
-	char fullinp[max_alias_size];
-	char *token;
-    char *tokens[max_tokens_number];                  //array of tokens (t)    
-
+	char fullinp[max_buffer_size];
 	strcpy(fullinp, inp); // get full command line input
     char delim[] = " \t|<>&;\n";  
+	char *token;
+    char *tokens[max_tokens_number];                  //array of tokens (t)    
     
 	memset(tokens, 0, sizeof(tokens));
 	int i = 0;

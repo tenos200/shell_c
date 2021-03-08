@@ -19,7 +19,7 @@ void add_alias(char **tokens, int args) {
 		return;
 	}
 	//allocates space to tokens array in order to allow mapping to stored properly
-	char *str1 = malloc(sizeof(**tokens));
+	char *str1 = malloc(sizeof(tokens));
 	//clears strings size malloc does not
 	strcpy(str1, "");
 
@@ -147,7 +147,6 @@ char *invoke_alias(char *fullinp) {
 		if(strcmp(inp, alias_map[i].aliasName) == 0) {
 			return alias_map[i].aliasCommand;
 		}
-
 	}
 
 	return NULL;
