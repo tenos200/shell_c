@@ -12,14 +12,22 @@ void add_alias(char **tokens, int args) {
 	int count = 0;
 
 	char *str = tokens[1];
-	char *str1;
 
 	//if alias command entered is empty then print error
 	if (tokens[2] == NULL) {
 		printf("Not enough arguments given, try: alias <name> <command>\n");
 		return;
 	}
-	str1 = concat_str(tokens, args);
+	//allocates space to tokens array in order to allow mapping to stored properly
+	char *str1 = malloc(sizeof(**tokens));
+	//clears strings size malloc does not
+	strcpy(str1, "");
+
+	//this for loop concatenates everything after str1 as one string for storing
+	for(int i = 2; i < args; i++) {
+		strcat(str1, tokens[i]);
+		strcat(str1, " ");
+	}
 
 	//checks the amount of elements in the list
 	for (int i = 0; i < max_alias_size; i++) {
@@ -39,6 +47,7 @@ void add_alias(char **tokens, int args) {
 		for (int i = 0; i < max_alias_size; i++) {
 			if(strcmp(alias_map[i].aliasName, str) == 0) {
 				printf("alias %s %s, replaced with: %s %s\n", str, alias_map[i].aliasCommand, str, str1);
+				strcpy(alias_map[i].aliasCommand, "");
 				strcpy(alias_map[i].aliasCommand, str1);
 				return;
 			}
@@ -47,6 +56,7 @@ void add_alias(char **tokens, int args) {
 		//if alias does not exist, then add them to next available spot in array, i.e count
 		strcpy(alias_map[count].aliasName, str);
 		strcpy(alias_map[count].aliasCommand, str1);
+	
 
 	}
 
@@ -62,8 +72,19 @@ void remove_alias(char **tokens, int args) {
 	if(tokens[1] == NULL) {
 		printf("Not enough arguments given, try: unalias <command>\n");
 	}
+	
 
-	command = concat_str(tokens, args);
+	//allocates space to tokens array in order to allow mapping to stored properly
+	command = malloc(sizeof(*tokens));
+	//clears strings size malloc does not
+	strcpy(command, "");
+
+	//this for loop concatenates everything after str1 as one string for storing
+	for(int i = 1; i < args; i++) {
+		strcat(command, tokens[i]);
+		strcat(command, " ");
+	}
+
 
 	//in order to count how many elements are in the array
 	for(int i = 0; i < max_alias_size; i++) {
@@ -73,16 +94,32 @@ void remove_alias(char **tokens, int args) {
 		}
 	}
 
-	//work in progress
+	//removes the instance of the command that is in the alias_map
 	for(int i = 0; i < max_alias_size; i++) {
 		if(strcmp(command, alias_map[i].aliasCommand) == 0) {
+			printf("Unaliased: %s\n", alias_map[i].aliasCommand);
 			strcpy(alias_map[i].aliasCommand, "");
-			strcpy(alias_map[i].aliasCommand, "");
+			strcpy(alias_map[i].aliasName, "");
+			index = i;
+			break;
 
 		}
-
+	}
+	
+	for(int i = index; i < max_alias_size - 1; i++) {
+		//if the current spot is empty and the one infront is not them move it back
+		if(strcmp(alias_map[i].aliasCommand, "") == 0 && strcmp(alias_map[i+1].aliasCommand, "") != 0) {
+			//move statement infront to empty spot
+			strcpy(alias_map[i].aliasCommand, alias_map[i+1].aliasCommand);
+			strcpy(alias_map[i].aliasName, alias_map[i+1].aliasName);
+			//make statement that has been moved empty
+			strcpy(alias_map[i+1].aliasCommand, "");
+			strcpy(alias_map[i+1].aliasName, "");
+		}
 	}
 
+	//free memory that has been allocated
+	free(command);
 
 }
 
@@ -105,25 +142,4 @@ void print_alias() {
 		printf("%s = %s\n", alias_map[i].aliasName, alias_map[i].aliasCommand);
 
 	}
-
-}
-
-char *concat_str(char **tokens, int args) {
-	
-	//allocates space to tokens array in order to allow mapping to stored properly
-	char *store = malloc(sizeof(*tokens));
-
-	//this for loop concatenates everything after str1 as one string for storing
-	for(int i = 2; i < args; i++) {
-		strcat(store, tokens[i]);
-		strcat(store, " ");
-	}
-
-	//stores the concatenated string into arguments2
-	char *str = store;
-
-	//free allocated memory for store
-	free(store);
-
-	return str;
 }

@@ -125,10 +125,6 @@ void commands(char **tokens, char *path, int args) {
 		} else {
 			changedir(tokens, args);
 		}
-	} else if(strcmp(tokens[0],"setpath") == 0) {
-		setPath(tokens, args);
-	} else if(strcmp(tokens[0],"getpath") == 0) {
-		getPath(args);
 	} else if(strcmp(tokens[0], "alias") == 0) {
 		 if(args == 1) {
 			print_alias();
@@ -137,6 +133,10 @@ void commands(char **tokens, char *path, int args) {
 		}
 	} else if(strcmp(tokens[0], "unalias") == 0) {
 		remove_alias(tokens, args);
+	} else if(strcmp(tokens[0],"setpath") == 0) {
+		setPath(tokens, args);
+	} else if(strcmp(tokens[0],"getpath") == 0) {
+		getPath(args);
 	} else {
 		process(tokens, args);
 	}
