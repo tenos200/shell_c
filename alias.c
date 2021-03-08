@@ -19,7 +19,7 @@ void add_alias(char **tokens, int args) {
 		return;
 	}
 	//allocates space to tokens array in order to allow mapping to stored properly
-	char *str1 = malloc(sizeof(tokens));
+	char *str1 = malloc(sizeof(**tokens));
 	//clears strings size malloc does not
 	strcpy(str1, "");
 
@@ -63,14 +63,17 @@ void add_alias(char **tokens, int args) {
 	strcpy(alias_map[count].aliasName, str);
 	strcpy(alias_map[count].aliasCommand, str1);
 
+	free(str1);
+
 }
 
 
 void remove_alias(char **tokens, int args) {
 	
-	char *command;
+	char *command = tokens[1];
 	int count = max_alias_size;
-	int index;
+	//if the index is not changed then alias does not exist to remove
+	int index = -1;
 
 	if(tokens[1] == NULL) {
 		printf("Not enough arguments given, try: unalias <command>\n");
@@ -91,48 +94,34 @@ void remove_alias(char **tokens, int args) {
 		return;
 	}
 
-	//allocates space to tokens array in order to allow mapping to stored properly
-	command = malloc(sizeof(*tokens));
-	//clears strings size malloc does not
-	strcpy(command, "");
-
-	//this for loop concatenates everything after str1 as one string for storing
-	for(int i = 1; i < args; i++) {
-		strcat(command, tokens[i]);
-		if(i == args -1) {
-			break;
-		}
-		strcat(command, " ");
-	}
-
-
-
-	//removes the instance of the command that is in the alias_map
-	for(int i = 0; i < max_alias_size; i++) {
-		if(strcmp(command, alias_map[i].aliasCommand) == 0) {
-			printf("Unaliased: %s\n", alias_map[i].aliasCommand);
-			strcpy(alias_map[i].aliasCommand, "");
+	//checks if the alias exists if so then remove it.
+	for(int i = 0; i < count; i++) {
+		if(strcmp(command, alias_map[i].aliasName) == 0) {
+			printf("Unaliased: %s\n", alias_map[i].aliasName);
 			strcpy(alias_map[i].aliasName, "");
+			strcpy(alias_map[i].aliasCommand, "");
+			//set index to position that was replaced
 			index = i;
-			break;
-
 		}
 	}
-	
+
+	//if the index is not changed then alias does not exist to remove
+	if (index == -1) {
+		printf("%s can not be unaliased because it is not an alias.\n", command);
+		return;
+	}
+
 	for(int i = index; i < max_alias_size - 1; i++) {
 		//if the current spot is empty and the one infront is not them move it back
-		if(strcmp(alias_map[i].aliasCommand, "") == 0 && strcmp(alias_map[i+1].aliasCommand, "") != 0) {
+		if(strcmp(alias_map[i].aliasName, "") == 0 && strcmp(alias_map[i+1].aliasName, "") != 0) {
 			//move statement infront to empty spot
-			strcpy(alias_map[i].aliasCommand, alias_map[i+1].aliasCommand);
 			strcpy(alias_map[i].aliasName, alias_map[i+1].aliasName);
+			strcpy(alias_map[i].aliasCommand, alias_map[i+1].aliasCommand);
 			//make statement that has been moved empty
 			strcpy(alias_map[i+1].aliasCommand, "");
 			strcpy(alias_map[i+1].aliasName, "");
 		}
 	}
-
-	//free memory that has been allocated
-	free(command);
 
 }
 
@@ -145,8 +134,12 @@ char *invoke_alias(char *fullinp) {
 	
 	for(int i = 0; i < max_alias_size; i++) {
 		if(strcmp(inp, alias_map[i].aliasName) == 0) {
-			return alias_map[i].aliasCommand;
+	
+			char *store = malloc(sizeof(alias_map[i].aliasCommand));
+			strcpy(store, alias_map[i].aliasCommand);
+			return store;
 		}
+
 	}
 
 	return NULL;

@@ -56,10 +56,10 @@ int main(void) {
 		char *line = fgets(inp, max_buffer_size, stdin);
 		if(feof(stdin)) { //CTRL+D == EXIT
             return quit(path);
-        } else {
-			if(invoke_alias(line) != NULL) {
+        } else if(invoke_alias(line) != NULL) {
 				line = invoke_alias(line);
-			}
+				parse_input(line, path, 0);
+		} else {
 			if(line[0] == '!') {
 				//returns a string to parse
 				line = invoke_History(line);
@@ -83,10 +83,11 @@ int parse_input(char *inp, char *path, int invoke){
 	
 	int max_tokens_number = 50;
 	char fullinp[max_buffer_size];
-	strcpy(fullinp, inp); // get full command line input
-    char delim[] = " \t|<>&;\n";  
 	char *token;
     char *tokens[max_tokens_number];                  //array of tokens (t)    
+
+	strcpy(fullinp, inp); // get full command line input
+    char delim[] = " \t|<>&;\n";  
     
 	memset(tokens, 0, sizeof(tokens));
 	int i = 0;
