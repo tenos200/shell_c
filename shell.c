@@ -43,7 +43,7 @@ int main(void) {
 	char *path = getenv("PATH");
 	char *homedir = getenv("HOME");
 	char *username = getenv("USER");
-	char inp[512];
+	char inp[max_buffer_size];
 
 	//sets starting directory as home
 	chdir(homedir);
@@ -53,10 +53,13 @@ int main(void) {
 
 	while(1) {
 		printf("%s$ ", username);
-		char *line = fgets(inp, 512, stdin);
+		char *line = fgets(inp, max_buffer_size, stdin);
 		if(feof(stdin)) { //CTRL+D == EXIT
             return quit(path);
         } else {
+			if(invoke_alias(line) != NULL) {
+				line = invoke_alias(line);
+			}
 			if(line[0] == '!') {
 				//returns a string to parse
 				line = invoke_History(line);
@@ -78,12 +81,14 @@ int main(void) {
 
 int parse_input(char *inp, char *path, int invoke){
 	
-	char fullinp[512];
+	int max_tokens_number = 50;
+	char fullinp[max_alias_size];
+	char *token;
+    char *tokens[max_tokens_number];                  //array of tokens (t)    
+
 	strcpy(fullinp, inp); // get full command line input
     char delim[] = " \t|<>&;\n";  
     
-	char *token;
-    char *tokens[50];                  //array of tokens (t)    
 	memset(tokens, 0, sizeof(tokens));
 	int i = 0;
 	token = strtok(inp, delim);   // delimiter to tokenize an array of strings

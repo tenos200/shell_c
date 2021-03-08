@@ -1,16 +1,17 @@
 void add_alias(char **tokens, int args);
 void remove_alias(char **tokens, int args);
-void invoke_alias();
+char *invoke_alias(char *fullinp);
 void print_alias();
 
 static const int max_alias_size = 10;
+static const int max_buffer_size = 512;
 
 //solve this for struct
 //
 typedef struct {
 
-	char aliasName[512];
-	char aliasCommand[512];
+	char aliasName[max_buffer_size];
+	char aliasCommand[max_buffer_size];
 
 } alias;
 
