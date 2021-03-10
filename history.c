@@ -10,13 +10,13 @@
 //used to keep track of history count
 static int history_counter = 0;
 //array for storing history
-static char history[20][512];
+static char history[20][max_buffer_size];
 //char array for storing path to .hist_list
 static char *file;
 		
 char *invoke_History(char *inp) {
 	
-	int i, trailing = -1;
+	int trailing = -1;
 	int index;
 	//use sscanf to take out index and trailing garbage for comparison
 	int comp = sscanf(inp, "!%d%n", &index, &trailing);
@@ -82,11 +82,10 @@ void print_History() {
 void load_history() {
 
 	char buffer[512];
-	int i = 0;
 	FILE *fp;
 	
 	//allocates memory to concat the home and history_file
-	file = malloc(strlen(getenv("HOME") + strlen(history_file) + 1));
+	file = malloc(sizeof(char) * strlen(getenv("HOME") + strlen(history_file) + 1));
 	//copys path to file
 	strcpy(file, getenv("HOME"));
 	//concatenates the file and history_file 
@@ -113,7 +112,7 @@ void save_history() {
 	
 
 	//allocates memory to concat the home and history_file
-	file = malloc(strlen(getenv("HOME") + strlen(history_file) + 1));
+	file = malloc(sizeof(char) *strlen(getenv("HOME")) + strlen(history_file) + 1);
 	//copys path to file
 	strcpy(file, getenv("HOME"));
 	//concatenates the file and history_file 

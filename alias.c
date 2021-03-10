@@ -134,12 +134,8 @@ char *invoke_alias(char *fullinp) {
 	
 	for(int i = 0; i < max_alias_size; i++) {
 		if(strcmp(inp, alias_map[i].aliasName) == 0) {
-	
-			char *store = malloc(sizeof(alias_map[i].aliasCommand));
-			strcpy(store, alias_map[i].aliasCommand);
-			return store;
+			return alias_map[i].aliasCommand;
 		}
-
 	}
 
 	return NULL;

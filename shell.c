@@ -57,7 +57,11 @@ int main(void) {
 		if(feof(stdin)) { //CTRL+D == EXIT
             return quit(path);
         } else if(invoke_alias(line) != NULL) {
-				line = invoke_alias(line);
+				//take out whatever is returned and store
+				char *store = invoke_alias(line);
+				//copy store over to line, to avoid segfault
+				strcpy(line, store);
+				//parsed aliased input
 				parse_input(line, path, 0);
 		} else {
 			if(line[0] == '!') {
@@ -73,7 +77,7 @@ int main(void) {
 		}
 		
 	}
-	//saves the history to file
+
 	return 0;
 }
 

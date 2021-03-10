@@ -1,10 +1,15 @@
+#ifndef max_buffer_size
+#define max_buffer_size 512 
+#endif
+
+#ifndef max_alias_size 
+#define max_alias_size 10
+#endif
 void add_alias(char **tokens, int args);
 void remove_alias(char **tokens, int args);
 char *invoke_alias(char *fullinp);
 void print_alias();
 
-static const int max_alias_size = 10;
-static const int max_buffer_size = 512;
 
 //solve this for struct
 //
