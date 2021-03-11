@@ -7,9 +7,13 @@
 #include <ctype.h>
 #include "alias.h"
 
+static char *file;
+
+static int alias_len;
+
 void add_alias(char **tokens, int args) {
 
-	int count = max_alias_size;
+	alias_len = max_alias_size;
 
 	char *str = tokens[1];
 
@@ -33,17 +37,10 @@ void add_alias(char **tokens, int args) {
 		strcat(str1, " ");
 	}
 
-	//checks the amount of elements in the list
-	for (int i = 0; i < max_alias_size; i++) {
-		if(strcmp(alias_map[i].aliasName, "") == 0) {
-			count = i;
-			break;
-		}
-	}
-
+	alias_len = number_of_aliases();
 
 	//for loop for checking if the alias already exists
-	for (int i = 0; i < max_alias_size; i++) {
+	for (int i = 0; i < alias_len; i++) {
 		if(strcmp(alias_map[i].aliasName, str) == 0) {
 			printf("alias %s %s, replaced with: %s %s\n", str, alias_map[i].aliasCommand, str, str1);
 			strcpy(alias_map[i].aliasCommand, "");
@@ -54,14 +51,14 @@ void add_alias(char **tokens, int args) {
 	}
 
 	//if alias is full then print message and return
-	if(count >= max_alias_size) {
+	if(alias_len >= max_alias_size) {
 		printf("Maximum amount of alias has been set.\n");
 		return;
 	}
 
 	//if alias does not exist, then add them to next available spot in array, i.e count
-	strcpy(alias_map[count].aliasName, str);
-	strcpy(alias_map[count].aliasCommand, str1);
+	strcpy(alias_map[alias_len].aliasName, str);
+	strcpy(alias_map[alias_len].aliasCommand, str1);
 
 	free(str1);
 
@@ -80,14 +77,7 @@ void remove_alias(char **tokens, int args) {
 		return;
 	}
 	
-	
-	//in order to count how many elements are in the array
-	for(int i = 0; i < max_alias_size; i++) {
-		if(strcmp(alias_map[i].aliasCommand, "") == 0) {
-			count = i;
-			break;
-		}
-	}
+	count = number_of_aliases();
 
 	if(count == 0) {
 		printf("No aliases have been added\n");
@@ -155,4 +145,90 @@ void print_alias() {
 		printf("%s = '%s'\n", alias_map[i].aliasName, alias_map[i].aliasCommand);
 
 	}
+}
+
+void load_alias() {
+
+	char buffer[512];
+	FILE *fp;
+	
+	//allocates memory to concat the home and history_file
+	file = malloc(sizeof(char) * strlen(getenv("HOME")) + strlen(alias_file) + 1);
+	//copys path to file
+	strcpy(file, getenv("HOME"));
+	//concatenates the file and history_file 
+	strcat(file, alias_file);
+	
+
+	fp = fopen(file, "r");
+
+	if(fp == NULL) {
+		fp = fopen(file, "a");
+	}
+
+
+	//index for loop
+	int index = 0;
+
+	while(fgets(buffer, max_buffer_size, fp) != NULL) {
+
+		//to check that file does not contain empty inputs
+		if(strcmp(buffer,"\n") == 0) {
+			printf("could not read .aliases\n");
+			exit(0);
+		}
+
+		//splits the string at the first space
+		char *store = strtok(buffer, " ");
+		strcpy(alias_map[index].aliasName, store);
+
+		//takes the rest of the string after the first space to store as aliasCommand
+		store = strtok(NULL, "\n");
+		if(store == NULL) {
+			printf("could not read .aliases\n");
+			exit(0);
+		} else {
+			strcpy(alias_map[index].aliasCommand, store);
+		}
+
+		index++;
+	}
+
+	fclose(fp);
+	free(file);
+
+}
+
+int number_of_aliases() {
+	
+	//checks the amount of elements in the list
+	for (int i = 0; i < max_alias_size; i++) {
+		if(strcmp(alias_map[i].aliasName, "") == 0) {
+			alias_len = i;
+			break;
+		}
+	}
+
+	return alias_len;
+}
+
+void save_alias() {
+
+	//allocates memory to concat the home and alias_file 
+	file = malloc(sizeof(char) *strlen(getenv("HOME")) + strlen(alias_file) + 1);
+	//copys path to file
+	strcpy(file, getenv("HOME"));
+	//concatenates the file and .aliases 
+	strcat(file, alias_file);
+	
+	alias_len = number_of_aliases();
+
+	FILE *fp = fopen(file,  "w");
+	for (int i = 0; i < alias_len; i++) {
+		fprintf(fp, "%s %s\n", alias_map[i].aliasName, alias_map[i].aliasCommand);
+	}
+
+	fclose(fp);
+	free(file);
+
 }

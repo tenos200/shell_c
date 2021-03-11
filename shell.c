@@ -50,6 +50,7 @@ int main(void) {
 	//clear screen to look more like initalising shell
 	system("clear");
 	load_history();
+	load_alias();
 
 	while(1) {
 		printf("%s$ ", username);
@@ -204,6 +205,7 @@ int quit(char *path) {
     }
     printf("Bye...\n");
 	save_history();
+	save_alias();
     exit(0);
 }
 

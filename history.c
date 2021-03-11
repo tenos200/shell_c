@@ -85,7 +85,7 @@ void load_history() {
 	FILE *fp;
 	
 	//allocates memory to concat the home and history_file
-	file = malloc(sizeof(char) * strlen(getenv("HOME") + strlen(history_file) + 1));
+	file = malloc(sizeof(char) * strlen(getenv("HOME")) + strlen(history_file) + 1);
 	//copys path to file
 	strcpy(file, getenv("HOME"));
 	//concatenates the file and history_file 
@@ -100,6 +100,14 @@ void load_history() {
 
 
 	while(fgets(buffer, 512, fp) != NULL) {
+
+		//to check that the .hist_list file does not contain empty inputs
+		if(strcmp(buffer, "\n") == 0) {
+			printf("could not read .hist_list.\n");
+			exit(0);
+		}
+
+		//else add the input to the history
 		add_History(strtok(buffer, "\n"));
 	}
 
