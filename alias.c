@@ -174,8 +174,11 @@ void load_alias() {
 
 		//to check that file does not contain empty inputs
 		if(strcmp(buffer,"\n") == 0) {
+
 			printf("could not read .aliases\n");
-			exit(0);
+			//clear the alias file  
+			fclose(fopen("file.txt", "w"));
+			break;
 		}
 
 		//splits the string at the first space

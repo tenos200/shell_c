@@ -104,7 +104,9 @@ void load_history() {
 		//to check that the .hist_list file does not contain empty inputs
 		if(strcmp(buffer, "\n") == 0) {
 			printf("could not read .hist_list.\n");
-			exit(0);
+			//clear the history file
+			fclose(fopen("file.txt", "w"));
+			break;
 		}
 
 		//else add the input to the history
