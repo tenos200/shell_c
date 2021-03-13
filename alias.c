@@ -9,7 +9,7 @@
 #include "history.h"
 
 static char *file;
-static int alias_len;
+static int alias_len = 10;
 
 
 void add_alias(char **tokens, int args) {
@@ -240,11 +240,10 @@ int number_of_aliases() {
 	for (int i = 0; i < max_alias_size; i++) {
 		if(strcmp(alias_map[i].aliasName, "") == 0) {
 			alias_len = i;
-			break;
+			return alias_len;
 		}
 	}
-
-	return alias_len;
+	return max_alias_size;
 }
 
 void save_alias() {
