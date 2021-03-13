@@ -37,8 +37,8 @@ char *invoke_History(char *inp) {
 	//checks whether comp is vaild and if trailing length is equal to length of input, if so then command is valid.
 	else if(comp == 1 && trailing == strlen(inp) - 1) {
 		//checks if the index is valid if not then number is out of range
-		if(index > history_counter || index < ( -history_counter)) {
-			printf("Error: number out of range\n");
+		if(index > history_counter || index < ( -history_counter) || index == 0) {
+			printf("Error: number out of range. Index is between 1 and 20.\n");
 			return NULL;
 		} else if(index > 0) {
 			return history[index-1];
@@ -80,7 +80,7 @@ void print_History() {
 }
 
 void load_history() {
-
+	
 	char buffer[512];
 	FILE *fp;
 	
@@ -101,14 +101,13 @@ void load_history() {
 
 	while(fgets(buffer, 512, fp) != NULL) {
 
-		//to check that the .hist_list file does not contain empty inputs
+		//to check the file has not been manipulated and the input is not empty
 		if(strcmp(buffer, "\n") == 0) {
 			printf("could not read .hist_list.\n");
 			//clear the history file
 			fclose(fopen("file.txt", "w"));
 			break;
 		}
-
 		//else add the input to the history
 		add_History(strtok(buffer, "\n"));
 	}
@@ -137,3 +136,4 @@ void save_history() {
 	free(file);
 
 }
+

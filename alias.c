@@ -6,10 +6,11 @@
 #include <sys/types.h>
 #include <ctype.h>
 #include "alias.h"
+#include "history.h"
 
 static char *file;
-
 static int alias_len;
+
 
 void add_alias(char **tokens, int args) {
 
@@ -36,6 +37,7 @@ void add_alias(char **tokens, int args) {
 		}
 		strcat(str1, " ");
 	}
+
 
 	alias_len = number_of_aliases();
 
@@ -77,6 +79,7 @@ void remove_alias(char **tokens, int args) {
 		return;
 	}
 	
+	
 	count = number_of_aliases();
 
 	if(count == 0) {
@@ -115,20 +118,49 @@ void remove_alias(char **tokens, int args) {
 
 }
 
-char *invoke_alias(char *fullinp) {
+char *invoke_alias(char *fullinp, int invoke) {
 
+	//used to check if there is any alias invoked, if check is 0 then we know that input is not alias
+	int check = 0;
 	//input to return and parse
 	char inp[max_buffer_size];
 	strcpy(inp, fullinp);
 	strtok(inp, "\n");
-	
-	for(int i = 0; i < max_alias_size; i++) {
-		if(strcmp(inp, alias_map[i].aliasName) == 0) {
-			return alias_map[i].aliasCommand;
-		}
+
+	int size = number_of_aliases();
+
+	char *alias_command = malloc(sizeof(fullinp));
+
+	char *tok = strtok(inp, " ");
+	//if alias is alias or unalias then return 0
+	if(strcmp(tok, "alias") == 0 || strcmp(tok, "unalias") == 0) {
+		return NULL;
 	}
 
-	return NULL;
+	while(tok != NULL) {
+
+		for(int i = 0; i < size; i++) {
+			//loop is used to concatenate the command that is being returned
+			if(strcmp(tok, alias_map[i].aliasName) == 0) {
+				tok = alias_map[i].aliasCommand;
+				check++;
+				break;
+			}
+		}
+				
+		strcat(alias_command, tok);
+		strcat(alias_command, " ");
+		tok = strtok(NULL, " ");
+
+	}
+	
+	if(check == 0) {
+		return NULL;
+	} if(invoke == 0) {
+		add_History(strtok(fullinp, "\n"));
+	}
+
+	return alias_command;
 }
 
 void print_alias() {

@@ -10,13 +10,16 @@
 #define max_alias_size 10
 #endif
 
+
 void add_alias(char **tokens, int args);
 void remove_alias(char **tokens, int args);
-char *invoke_alias(char *fullinp);
+char *invoke_alias(char *fullinp, int invoke);
+int number_of_aliases();
+void print_alias();
 void save_alias();
 void load_alias();
-void print_alias();
 int number_of_aliases();
+
 
 
 //solve this for struct

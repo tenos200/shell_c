@@ -51,27 +51,41 @@ int main(void) {
 	system("clear");
 	load_history();
 	load_alias();
-
+	
 	while(1) {
 		printf("%s$ ", username);
 		char *line = fgets(inp, max_buffer_size, stdin);
 		if(feof(stdin)) { //CTRL+D == EXIT
             return quit(path);
-        } else if(invoke_alias(line) != NULL) {
-				//take out whatever is returned and store
-				char *store = invoke_alias(line);
-				//copy store over to line, to avoid segfault
-				strcpy(line, store);
-				//parsed aliased input
-				parse_input(line, path, 0);
+        } else if(invoke_alias(line, 1) != NULL) {
+			//take out whatever is returned and store
+			char *store = invoke_alias(line, 0);
+			//copy store over to line, to avoid segfault
+			strcpy(line, store);
+			//parsed aliased input
+			parse_input(line, path, 1);
 		} else {
 			if(line[0] == '!') {
 				//returns a string to parse
-				line = invoke_History(line);
-				//if return is NULL the history invokation was not valid 
-				if(line != NULL) {
-					parse_input(line , path, 1);
+				char *str = invoke_History(line);
+				//to ensure that the str return is not null
+				if(str != NULL) {
+					//if str contains value then copy over to line
+					strcpy(line, str);
+
+					if(invoke_alias(line, 1) != NULL) {
+						//take out whatever is returned and store
+						char *store = invoke_alias(line, 1);
+						//copy store over to line, to avoid segfault
+						strcpy(line, store);
+						//parsed aliased input
+						parse_input(line , path, 1);
+					} else {
+						strcpy(line, str);
+						parse_input(line , path, 1);
+					}
 				}
+				
 			} else {
 				parse_input(line, path, 0); // invoke = 0
 			}
@@ -81,8 +95,6 @@ int main(void) {
 
 	return 0;
 }
-
-// parse the user inputs and returns an array of tokens (t)
 
 int parse_input(char *inp, char *path, int invoke){
 	
