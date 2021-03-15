@@ -99,13 +99,11 @@ void load_history() {
 	}
 
 
-	while(fgets(buffer, 512, fp) != NULL) {
+	while(fgets(buffer, max_buffer_size, fp) != NULL) {
 
 		//to check the file has not been manipulated and the input is not empty
 		if(strcmp(buffer, "\n") == 0) {
 			printf("could not read .hist_list.\n");
-			//clear the history file
-			fclose(fopen("file.txt", "w"));
 			break;
 		}
 		//else add the input to the history

@@ -9,8 +9,8 @@
 #include "history.h"
 
 static char *file;
+static alias alias_map[max_alias_size];
 static int alias_len = 10;
-
 
 void add_alias(char **tokens, int args) {
 
@@ -24,7 +24,7 @@ void add_alias(char **tokens, int args) {
 		return;
 	}
 	//allocates space to tokens array in order to allow mapping to stored properly
-	char *str1 = malloc(sizeof(**tokens));
+	char *str1 = malloc(sizeof(char) * max_buffer_size);
 	//clears strings size malloc does not
 	strcpy(str1, "");
 
@@ -51,9 +51,9 @@ void add_alias(char **tokens, int args) {
 		}
 
 	}
-
+	
 	//if alias is full then print message and return
-	if(alias_len >= max_alias_size) {
+	if(alias_len >= max_alias_size - 1) {
 		printf("Maximum amount of alias has been set.\n");
 		return;
 	}
@@ -79,13 +79,7 @@ void remove_alias(char **tokens, int args) {
 		return;
 	}
 	
-	
 	count = number_of_aliases();
-
-	if(count == 0) {
-		printf("No aliases have been added\n");
-		return;
-	}
 
 	//checks if the alias exists if so then remove it.
 	for(int i = 0; i < count; i++) {
@@ -99,8 +93,8 @@ void remove_alias(char **tokens, int args) {
 	}
 
 	//if the index is not changed then alias does not exist to remove
-	if (index == -1) {
-		printf("%s can not be unaliased because it is not an alias.\n", command);
+	if (index == -1 || count == 0) {
+		printf("%s is not an alias.\n", command);
 		return;
 	}
 
@@ -129,7 +123,7 @@ char *invoke_alias(char *fullinp, int invoke) {
 
 	int size = number_of_aliases();
 
-	char *alias_command = malloc(sizeof(fullinp));
+	char *alias_command = malloc(sizeof(char) * max_buffer_size);
 
 	char *tok = strtok(inp, " ");
 	//if alias is alias or unalias then return 0
@@ -206,10 +200,7 @@ void load_alias() {
 
 		//to check that file does not contain empty inputs
 		if(strcmp(buffer,"\n") == 0) {
-
 			printf("could not read .aliases\n");
-			//clear the alias file  
-			fclose(fopen("file.txt", "w"));
 			break;
 		}
 
@@ -221,7 +212,9 @@ void load_alias() {
 		store = strtok(NULL, "\n");
 		if(store == NULL) {
 			printf("could not read .aliases\n");
-			exit(0);
+			//clear the input that was previously added to the alias name since command in file is corrupt
+			strcpy(alias_map[index].aliasName, "");
+			break;
 		} else {
 			strcpy(alias_map[index].aliasCommand, store);
 		}

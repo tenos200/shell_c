@@ -7,7 +7,7 @@
 #endif
 
 #ifndef max_alias_size 
-#define max_alias_size 10
+#define max_alias_size 11
 #endif
 
 
@@ -30,5 +30,3 @@ typedef struct {
 	char aliasCommand[max_buffer_size];
 
 } alias;
-
-static alias alias_map[max_alias_size];
