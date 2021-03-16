@@ -9,4 +9,5 @@ void add_History(char *inp);
 void save_history();
 void load_history();
 void print_History();
+void empty_history();
 char *invoke_History(char *inp);

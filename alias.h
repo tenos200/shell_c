@@ -18,6 +18,7 @@ int number_of_aliases();
 void print_alias();
 void save_alias();
 void load_alias();
+void empty_alias();
 int number_of_aliases();
 
 

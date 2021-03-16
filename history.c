@@ -104,6 +104,7 @@ void load_history() {
 		//to check the file has not been manipulated and the input is not empty
 		if(strcmp(buffer, "\n") == 0) {
 			printf("could not read .hist_list.\n");
+			empty_history();
 			break;
 		}
 		//else add the input to the history
@@ -135,3 +136,11 @@ void save_history() {
 
 }
 
+void empty_history() {
+
+	//method to clear history array if .hist_list file has been tampered with
+	for(int i = 0; i < history_counter; i++) {
+		strcpy(history[i], "");
+	}
+	history_counter = 0;
+}

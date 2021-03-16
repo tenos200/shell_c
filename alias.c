@@ -201,6 +201,7 @@ void load_alias() {
 		//to check that file does not contain empty inputs
 		if(strcmp(buffer,"\n") == 0) {
 			printf("could not read .aliases\n");
+			empty_alias();
 			break;
 		}
 
@@ -212,8 +213,7 @@ void load_alias() {
 		store = strtok(NULL, "\n");
 		if(store == NULL) {
 			printf("could not read .aliases\n");
-			//clear the input that was previously added to the alias name since command in file is corrupt
-			strcpy(alias_map[index].aliasName, "");
+			empty_alias();
 			break;
 		} else {
 			strcpy(alias_map[index].aliasCommand, store);
@@ -237,6 +237,18 @@ int number_of_aliases() {
 		}
 	}
 	return max_alias_size;
+}
+
+void empty_alias() {
+
+	//gets the size of the alias_map
+	int size = number_of_aliases();
+
+	//clears the alias_map
+	for(int i = 0; i < size; i++) {
+		strcpy(alias_map[i].aliasName, "");
+		strcpy(alias_map[i].aliasCommand, "");
+	}
 }
 
 void save_alias() {
