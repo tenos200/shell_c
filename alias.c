@@ -24,7 +24,7 @@ void add_alias(char **tokens, int args) {
 		return;
 	}
 	//allocates space to tokens array in order to allow mapping to stored properly
-	char *str1 = malloc(sizeof(char) * max_buffer_size);
+	char *str1 = malloc(sizeof(char) * (strlen(*tokens) + 1));
 	//clears strings size malloc does not
 	strcpy(str1, "");
 
@@ -112,16 +112,23 @@ void remove_alias(char **tokens, int args) {
 
 }
 
-char *invoke_alias(char *fullinp, int invoke) {
+char *invoke_alias(char *fullinp, int invoke, int display) {
 
 	//used to check if there is any alias invoked, if check is 0 then we know that input is not alias
-	int check = 0;
+	int swaps = 0;
+	//to ensure there is a set maximum amount of swaps that can be carried out
+	int max_swapps = 4;
+	int allowed_swaps = 3;
+	//to store aliases for concatenation
+	char *storeInvoke[50];
 	//input to return and parse
+	int count = 0;
+	//gets the size of the alias_map
+	int size = number_of_aliases();
 	char inp[max_buffer_size];
 	strcpy(inp, fullinp);
 	strtok(inp, "\n");
 
-	int size = number_of_aliases();
 
 	char *alias_command = malloc(sizeof(char) * max_buffer_size);
 
@@ -131,31 +138,60 @@ char *invoke_alias(char *fullinp, int invoke) {
 		return NULL;
 	}
 
-	while(tok != NULL) {
 
-		for(int i = 0; i < size; i++) {
-			//loop is used to concatenate the command that is being returned
-			if(strcmp(tok, alias_map[i].aliasName) == 0) {
-				tok = alias_map[i].aliasCommand;
-				check++;
-				break;
+
+	//loop to store all the values from the input in one array, split by spaces
+	while(tok != NULL) {
+		storeInvoke[count] = tok;
+		count++;
+		tok = strtok(NULL, " ");
+	}
+
+	/*the first loop is used to go through all the elements of the array
+	 * the second loop is used to carry out the swaps for the aliases, and ensure that this do not exceed 3
+	 * the third loop is used to replace the alias with the actual command
+	 * */
+	for(int i = 0; i < count; i++) {
+		for(int j = 0; j < max_swapps; j++) {
+			for(int k = 0; k < size; k++) {
+				if(strcmp(storeInvoke[i], alias_map[k].aliasName) == 0) {
+					storeInvoke[i] = alias_map[k].aliasCommand;
+					swaps++;
+					break;
+				}
 			}
 		}
-				
-		strcat(alias_command, tok);
-		strcat(alias_command, " ");
-		tok = strtok(NULL, " ");
-
 	}
-	
-	if(check == 0) {
+
+	if(swaps > (allowed_swaps * count) && display == 1) {
+		printf("Error. Maximum amount of aliases swaps.\n");
+		//return enter to not pass on the invalid alias
+		return "\n";
+	}
+	//if nothing is an alias then return NULL
+	else if(swaps == 0) {
 		return NULL;
-	} if(invoke == 0) {
-		add_History(strtok(fullinp, "\n"));
-	}
+	} else {
+		//copy over the first index to the alias
+		strcpy(alias_command, storeInvoke[0]);
+		// add a space for the concatenation
+		strcat(alias_command, " ");
 
+		//loop from the first index til count and concatenate the remaining tokens
+		for(int i = 1; i < count; i++) {
+			strcat(alias_command, storeInvoke[i]);
+			strcat(alias_command, " ");
+		}
+	}
+	 
+	//if the invoke is 0, then we add the command to the history, else the command should not be added
+	if(invoke == 0) {
+		add_History(strtok(fullinp, "\n"));
+	} 
+	
 	return alias_command;
 }
+
 
 void print_alias() {
 
@@ -175,7 +211,7 @@ void print_alias() {
 
 void load_alias() {
 
-	char buffer[512];
+	char buffer[max_buffer_size];
 	FILE *fp;
 	
 	//allocates memory to concat the home and history_file
@@ -269,5 +305,4 @@ void save_alias() {
 
 	fclose(fp);
 	free(file);
-
 }

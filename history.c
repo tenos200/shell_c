@@ -41,7 +41,7 @@ char *invoke_History(char *inp) {
 			printf("Error: number out of range. Index is between 1 and 20.\n");
 			return NULL;
 		} else if(index > 0) {
-			return history[index-1];
+			return history[index - 1];
 		} else {
 			return history[history_counter + index];
 		}
@@ -142,5 +142,6 @@ void empty_history() {
 	for(int i = 0; i < history_counter; i++) {
 		strcpy(history[i], "");
 	}
+	//set counter to 0 as history is no empty
 	history_counter = 0;
 }

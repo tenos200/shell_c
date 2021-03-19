@@ -14,25 +14,15 @@ void getPath(int args);
 int changedir(char **tokens, int args);
 void setPath(char **tokens, int args);
 void commands(char **tokens, char *path, int args);
+void checkAlias(char *str, char *line, char *path, int display);
 int quit(char *path);
 
 /*
-The operation of the shell should be as follows:
-Find the user homedir directory from the environment 
-Set current working directory to user homedir directory 
-Save the current path
-Load history
-Load aliases
-Do while shell has not terminated
-	Display prompt
-	Read and parse user input
-	While the command is a history invocation or alias, then replace it with the appropriate command from history or the aliased command respectively
-	If command is built-in invoke, appropriate function
-	Else execute command as an external process
-End while
-Save history
-Save aliases
-Restore original path Exit
+ * Tim Enos
+ * Adrian Pihlgren
+ * Erin Allen
+ * Karmen Tsang
+ * Sudeep Dhakal
 */
 
 	
@@ -44,7 +34,8 @@ int main(void) {
 	char *homedir = getenv("HOME");
 	char *username = getenv("USER");
 	char inp[max_buffer_size];
-
+	//used to prevent multiple error messages begin displayed
+	int display;
 	//sets starting directory as home
 	chdir(homedir);
 	//clear screen to look more like initalising shell
@@ -55,42 +46,38 @@ int main(void) {
 	while(1) {
 		printf("%s$ ", username);
 		char *line = fgets(inp, max_buffer_size, stdin);
+		display = 0;
 		if(feof(stdin)) { //CTRL+D == EXIT
             return quit(path);
-        } else if(invoke_alias(line, 1) != NULL) {
+        } else if(invoke_alias(line, 1, display) != NULL) {
 			//take out whatever is returned and store
-			char *store = invoke_alias(line, 0);
-			//copy store over to line, to avoid segfault
-			strcpy(line, store);
-			//parsed aliased input
-			parse_input(line, path, 1);
-		} else {
-			if(line[0] == '!') {
+			char *store = invoke_alias(line, 1, display);
+
+			if(store[0] == '!') {
+				//copy store over to line, to avoid segfault
+				strcpy(line, store);
+				//grab whatever is being invoked to parse as a command
+				char *str = invoke_History(line);
+				//pass to checkAlias function
+				checkAlias(str, line, path, display);
+			} else {
+				//set display to 1 as we want to display any error messages
+				display = 1;
+				//take out whatever is returned and store
+				store = invoke_alias(line, 0, display);
+				//copy store over to line, to avoid segfault
+				strcpy(line, store);
+				//parse aliased input
+				parse_input(line, path, 1);
+			}
+		} else if(line[0] == '!') {
 				//returns a string to parse
 				char *str = invoke_History(line);
-				//to ensure that the str return is not null
-				if(str != NULL) {
-					//if str contains value then copy over to line
-					strcpy(line, str);
-
-					if(invoke_alias(line, 1) != NULL) {
-						//take out whatever is returned and store
-						char *store = invoke_alias(line, 1);
-						//copy store over to line, to avoid segfault
-						strcpy(line, store);
-						//parsed aliased input
-						parse_input(line , path, 1);
-					} else {
-						strcpy(line, str);
-						parse_input(line , path, 1);
-					}
-				}
-				
-			} else {
-				parse_input(line, path, 0); // invoke = 0
-			}
+				//pass to function to see if it is alias
+				checkAlias(str, line, path, display);
+		} else {
+			parse_input(line, path, 0); // invoke = 0
 		}
-		
 	}
 
 	return 0;
@@ -232,4 +219,27 @@ int changedir(char **tokens, int args) {
 		return -1;
 	}
 	return 0;
+}
+
+void checkAlias(char *str, char *line, char *path, int display) {
+
+
+	if(str != NULL) {
+		//if str contains value then copy over to line
+		strcpy(line, str);
+
+		if(invoke_alias(line, 1, display) != NULL) {
+			//set display to 1 as we want to display error messages
+			display = 1;
+			//take out whatever is returned and store
+			char *store = invoke_alias(line, 1, display);
+			//copy store over to line, to avoid segfault
+			strcpy(line, store);
+			//parse aliased input
+			parse_input(line , path, 1);
+		} else {
+			strcpy(line, str);
+			parse_input(line , path, 1);
+		}
+	}
 }

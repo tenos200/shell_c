@@ -13,7 +13,7 @@
 
 void add_alias(char **tokens, int args);
 void remove_alias(char **tokens, int args);
-char *invoke_alias(char *fullinp, int invoke);
+char *invoke_alias(char *fullinp, int invoke, int display);
 int number_of_aliases();
 void print_alias();
 void save_alias();
