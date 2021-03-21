@@ -25,7 +25,7 @@ void add_alias(char **tokens, int args) {
 	}
 	//allocates space to tokens array in order to allow mapping to stored properly
 	char *str1 = malloc(sizeof(char) * (strlen(*tokens) + 1));
-	//clears strings size malloc does not
+	//clears strings since malloc does not
 	strcpy(str1, "");
 
 	//this for loop concatenates everything after str1 as one string for storing
@@ -112,7 +112,7 @@ void remove_alias(char **tokens, int args) {
 
 }
 
-char *invoke_alias(char *fullinp, int invoke, int display) {
+char *invoke_alias(char *fullinp, char *alias_command, int invoke, int display) {
 
 	//used to check if there is any alias invoked, if check is 0 then we know that input is not alias
 	int swaps = 0;
@@ -120,7 +120,7 @@ char *invoke_alias(char *fullinp, int invoke, int display) {
 	int max_swapps = 4;
 	int allowed_swaps = 3;
 	//to store aliases for concatenation
-	char *storeInvoke[50];
+	char *storeInvoke[max_array_size];
 	//input to return and parse
 	int count = 0;
 	//gets the size of the alias_map
@@ -130,15 +130,7 @@ char *invoke_alias(char *fullinp, int invoke, int display) {
 	strtok(inp, "\n");
 
 
-	char *alias_command = malloc(sizeof(char) * max_buffer_size);
-
 	char *tok = strtok(inp, " ");
-	//if alias is alias or unalias then return 0
-	if(strcmp(tok, "alias") == 0 || strcmp(tok, "unalias") == 0) {
-		return NULL;
-	}
-
-
 
 	//loop to store all the values from the input in one array, split by spaces
 	while(tok != NULL) {
@@ -169,14 +161,11 @@ char *invoke_alias(char *fullinp, int invoke, int display) {
 		return "\n";
 	}
 	//if nothing is an alias then return NULL
-	else if(swaps == 0) {
-		return NULL;
-	} else {
+	else {
 		//copy over the first index to the alias
 		strcpy(alias_command, storeInvoke[0]);
 		// add a space for the concatenation
 		strcat(alias_command, " ");
-
 		//loop from the first index til count and concatenate the remaining tokens
 		for(int i = 1; i < count; i++) {
 			strcat(alias_command, storeInvoke[i]);
@@ -212,6 +201,8 @@ void print_alias() {
 void load_alias() {
 
 	char buffer[max_buffer_size];
+	//index for loop
+	int index;
 	FILE *fp;
 	
 	//allocates memory to concat the home and history_file
@@ -229,8 +220,7 @@ void load_alias() {
 	}
 
 
-	//index for loop
-	int index = 0;
+	index = 0;
 
 	while(fgets(buffer, max_buffer_size, fp) != NULL) {
 
@@ -305,4 +295,43 @@ void save_alias() {
 
 	fclose(fp);
 	free(file);
+}
+
+//method for check if a command is an alias, if true then return 1, else -1
+int is_alias(char *fullinp) {
+	
+	char *storeInvoke[max_array_size];
+	//input to return and parse
+	int count = 0;
+	//gets the size of the alias_map
+	int size = number_of_aliases();
+	char inp[max_buffer_size];
+	strcpy(inp, fullinp);
+	strtok(inp, "\n");
+
+	char *tok = strtok(inp, " ");
+	//if alias is alias or unalias then return 0
+	if(strcmp(tok, "alias") == 0 || strcmp(tok, "unalias") == 0) {
+		return -1;
+	}
+
+
+	//loop to store all the values from the input in one array, split by spaces
+	while(tok != NULL) {
+		storeInvoke[count] = tok;
+		count++;
+		tok = strtok(NULL, " ");
+	}
+
+
+	//loop through each token and check if it exists as an alias, if so then return 1
+		for(int i = 0; i < count; i++) {
+			for(int j = 0; j < size; j++) {
+				if(strcmp(storeInvoke[i], alias_map[j].aliasName) == 0) {
+					return 1;
+				}
+			}
+		}
+
+		return -1;
 }

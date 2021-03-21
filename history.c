@@ -18,11 +18,13 @@ char *invoke_History(char *inp) {
 	
 	int trailing = -1;
 	int index;
+	char compare[max_buffer_size];
+	strcpy(compare, inp);
 	//use sscanf to take out index and trailing garbage for comparison
 	int comp = sscanf(inp, "!%d%n", &index, &trailing);
 
 	//check if last command is invoked
-	if(strcmp(inp, "!!\n") == 0) {
+	if(strcmp(strtok(compare, " \n"), "!!") == 0 && trailing == -1) {
 
 		//if counter is 0 then no command can be invoked print error
 		if(history_counter == 0) {
@@ -145,3 +147,4 @@ void empty_history() {
 	//set counter to 0 as history is no empty
 	history_counter = 0;
 }
+

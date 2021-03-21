@@ -9,7 +9,7 @@
 #include "alias.h"
 
 int parse_input(char *inp, char *path, int invoke);
-int process(char *tokens[50], int args);
+int process(char *tokens[max_array_size], int args);
 void getPath(int args);
 int changedir(char **tokens, int args);
 void setPath(char **tokens, int args);
@@ -25,7 +25,6 @@ int quit(char *path);
  * Sudeep Dhakal
 */
 
-	
 
 int main(void) {
 
@@ -34,8 +33,11 @@ int main(void) {
 	char *homedir = getenv("HOME");
 	char *username = getenv("USER");
 	char inp[max_buffer_size];
+	char *invoked_hist;
+	char *store;
 	//used to prevent multiple error messages begin displayed
 	int display;
+	int is_invoked;
 	//sets starting directory as home
 	chdir(homedir);
 	//clear screen to look more like initalising shell
@@ -47,36 +49,34 @@ int main(void) {
 		printf("%s$ ", username);
 		char *line = fgets(inp, max_buffer_size, stdin);
 		display = 0;
+		is_invoked = 0;
 		if(feof(stdin)) { //CTRL+D == EXIT
             return quit(path);
-        } else if(invoke_alias(line, 1, display) != NULL) {
-			//take out whatever is returned and store
-			char *store = invoke_alias(line, 1, display);
+        } else if(is_alias(line) == 1) {
+			is_invoked = 1;
+			char *command = malloc(sizeof(char) * max_buffer_size); //allocate the appropriate memory for the concatenation in the method
+			store = invoke_alias(line, command, is_invoked, display);
 
 			if(store[0] == '!') {
-				//copy store over to line, to avoid segfault
 				strcpy(line, store);
-				//grab whatever is being invoked to parse as a command
-				char *str = invoke_History(line);
-				//pass to checkAlias function
-				checkAlias(str, line, path, display);
+				free(command); //free memory allocated for concat
+				invoked_hist = invoke_History(line);
+				checkAlias(invoked_hist, line, path, display);
 			} else {
+				is_invoked = 0;
 				//set display to 1 as we want to display any error messages
 				display = 1;
-				//take out whatever is returned and store
-				store = invoke_alias(line, 0, display);
-				//copy store over to line, to avoid segfault
+				store = invoke_alias(line, command, is_invoked, display);
 				strcpy(line, store);
-				//parse aliased input
+				free(command);
 				parse_input(line, path, 1);
 			}
 		} else if(line[0] == '!') {
-				//returns a string to parse
-				char *str = invoke_History(line);
+				invoked_hist = invoke_History(line);
 				//pass to function to see if it is alias
-				checkAlias(str, line, path, display);
+				checkAlias(invoked_hist, line, path, display);
 		} else {
-			parse_input(line, path, 0); // invoke = 0
+			parse_input(line, path, is_invoked);
 		}
 	}
 
@@ -85,10 +85,9 @@ int main(void) {
 
 int parse_input(char *inp, char *path, int invoke){
 	
-	int max_tokens_number = 50;
 	char fullinp[max_buffer_size];
 	char *token;
-    char *tokens[max_tokens_number];                  //array of tokens (t)    
+    char *tokens[max_array_size];                  //array of tokens (t)    
 
 	strcpy(fullinp, inp); // get full command line input
     char delim[] = " \t|<>&;\n";  
@@ -152,7 +151,7 @@ void commands(char **tokens, char *path, int args) {
 }
 
 // creating a separate process for fork() system call
-int process(char *tokens[50], int args) {
+int process(char *tokens[max_array_size], int args) {
 
 	pid_t pid;
 	pid = fork();                          // fork a child process
@@ -215,31 +214,35 @@ int changedir(char **tokens, int args) {
 		chdir(getenv("HOME"));
 		return 1;
 	} else if(chdir(tokens[1]) == -1) {
-		perror("shell");
+		perror(tokens[1]);
 		return -1;
 	}
 	return 0;
 }
 
-void checkAlias(char *str, char *line, char *path, int display) {
+void checkAlias(char *invoked_hist, char *line, char *path, int display) {
+	//this method is used to check if an invoked history is an alias, if so then we replace the output
+	
+	int is_invoked = 1;
 
+	if(invoked_hist != NULL) {
+		//if invoked_hist contains value then copy over to line
+		strcpy(line, invoked_hist);
 
-	if(str != NULL) {
-		//if str contains value then copy over to line
-		strcpy(line, str);
-
-		if(invoke_alias(line, 1, display) != NULL) {
+		if(is_alias(line) == 1) {
 			//set display to 1 as we want to display error messages
 			display = 1;
-			//take out whatever is returned and store
-			char *store = invoke_alias(line, 1, display);
+			char *command = malloc(sizeof(char) * max_buffer_size);
+			char *store = invoke_alias(line, command, is_invoked, display);
 			//copy store over to line, to avoid segfault
 			strcpy(line, store);
+			//free memory that was allocated for concat 
+			free(command);
 			//parse aliased input
-			parse_input(line , path, 1);
+			parse_input(line, path, is_invoked);
 		} else {
-			strcpy(line, str);
-			parse_input(line , path, 1);
+			strcpy(line, invoked_hist);
+			parse_input(line, path, is_invoked);
 		}
 	}
 }
