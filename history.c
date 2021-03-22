@@ -10,7 +10,7 @@
 //used to keep track of history count
 static int history_counter = 0;
 //array for storing history
-static char history[20][max_buffer_size];
+static char history[max_history_size][max_buffer_size];
 //char array for storing path to .hist_list
 static char *file;
 		
@@ -23,33 +23,30 @@ char *invoke_History(char *inp) {
 	//use sscanf to take out index and trailing garbage for comparison
 	int comp = sscanf(inp, "!%d%n", &index, &trailing);
 
+	//if counter is 0 then no command can be invoked print error
+	if(history_counter == 0) {
+		printf("History: No history to invoke.\n");
+		return NULL;
+	} 
+
 	//check if last command is invoked
 	if(strcmp(strtok(compare, " \n"), "!!") == 0 && trailing == -1) {
-
-		//if counter is 0 then no command can be invoked print error
-		if(history_counter == 0) {
-			printf("Error: No history to invoke.\n");
-			return NULL;
-		} 
-		//otherwise execute the previous command
-		else {
-			return history[history_counter-1];
-		}
+		return history[history_counter-1];
 	} 
 	//checks whether comp is vaild and if trailing length is equal to length of input, if so then command is valid.
 	else if(comp == 1 && trailing == strlen(inp) - 1) {
 		//checks if the index is valid if not then number is out of range
 		if(index > history_counter || index < ( -history_counter) || index == 0) {
-			printf("Error: number out of range. Index is between 1 and 20.\n");
+			printf("History: Index is out of range.\n");
 			return NULL;
 		} else if(index > 0) {
 			return history[index - 1];
 		} else {
 			return history[history_counter + index];
 		}
-
-	} else {
-		printf("Error: Invalid invokation. Try: !! or: !<no>\n");
+	} 
+	else {
+		printf("History: Invalid invokation. Try: !! or: !<no>\n");
 	}
 
 	return NULL;
@@ -58,12 +55,13 @@ char *invoke_History(char *inp) {
 void add_History(char *inp) { // adds input to history
 	
 	// new attempt but with shift
-	if(history_counter >= 20) { // if history is full
+	if(history_counter >= max_history_size) { // if history is full
 		for(int i = 0; i < history_counter; i++) { // shift everything left
 			strcpy(history[i], history[i+1]);
 		}
 		strcpy(history[history_counter-1], inp);	// then add input at the end
-	} else { // else if array is not full
+	} 
+	else { // else if array is not full
 		strcpy(history[history_counter], inp);	// add all of input
 		history_counter++; // update count
 	}
@@ -83,7 +81,7 @@ void print_History() {
 
 void load_history() {
 	
-	char buffer[512];
+	char buffer[max_buffer_size];
 	FILE *fp;
 	
 	//allocates memory to concat the home and history_file
@@ -105,7 +103,7 @@ void load_history() {
 
 		//to check the file has not been manipulated and the input is not empty
 		if(strcmp(buffer, "\n") == 0) {
-			printf("could not read .hist_list.\n");
+			printf("History: could not read .hist_list.\n");
 			empty_history();
 			break;
 		}
@@ -147,4 +145,3 @@ void empty_history() {
 	//set counter to 0 as history is no empty
 	history_counter = 0;
 }
-

@@ -8,6 +8,7 @@
 #include "alias.h"
 #include "history.h"
 
+
 static char *file;
 static alias alias_map[max_alias_size];
 static int alias_len = 10;
@@ -20,7 +21,7 @@ void add_alias(char **tokens, int args) {
 
 	//if alias command entered is empty then print error
 	if (tokens[2] == NULL) {
-		printf("Not enough arguments given, try: alias <name> <command>\n");
+		printf("Alias: Not enough arguments given, try: alias <name> <command>\n");
 		return;
 	}
 	//allocates space to tokens array in order to allow mapping to stored properly
@@ -54,7 +55,7 @@ void add_alias(char **tokens, int args) {
 	
 	//if alias is full then print message and return
 	if(alias_len >= max_alias_size - 1) {
-		printf("Maximum amount of alias has been set.\n");
+		printf("Alias: Maximum amount of alias has been set.\n");
 		return;
 	}
 
@@ -75,11 +76,16 @@ void remove_alias(char **tokens, int args) {
 	int index = -1;
 
 	if(tokens[1] == NULL) {
-		printf("Not enough arguments given, try: unalias <command>\n");
+		printf("Alias: Not enough arguments given, try: unalias <command>\n");
 		return;
 	}
 	
 	count = number_of_aliases();
+
+	if(count == 0) {
+		printf("Alias: No aliases have been set\n");
+		return;
+	}
 
 	//checks if the alias exists if so then remove it.
 	for(int i = 0; i < count; i++) {
@@ -94,7 +100,7 @@ void remove_alias(char **tokens, int args) {
 
 	//if the index is not changed then alias does not exist to remove
 	if (index == -1 || count == 0) {
-		printf("%s is not an alias.\n", command);
+		printf("Alias: %s is not an alias.\n", command);
 		return;
 	}
 
@@ -156,7 +162,7 @@ char *invoke_alias(char *fullinp, char *alias_command, int invoke, int display) 
 	}
 
 	if(swaps > (allowed_swaps * count) && display == 1) {
-		printf("Error. Maximum amount of aliases swaps.\n");
+		printf("Alias: Maximum amount of aliases swaps.\n");
 		//return enter to not pass on the invalid alias
 		return "\n";
 	}
@@ -188,7 +194,7 @@ void print_alias() {
 
 		if(strcmp(alias_map[i].aliasName, "") == 0) {
 			if(i == 0) {
-				printf("No aliases have been added\n");
+				printf("Alias: No aliases have been added\n");
 			}
 			break;
 		} 
@@ -226,7 +232,7 @@ void load_alias() {
 
 		//to check that file does not contain empty inputs
 		if(strcmp(buffer,"\n") == 0) {
-			printf("could not read .aliases\n");
+			printf("Alias: could not read .aliases\n");
 			empty_alias();
 			break;
 		}
@@ -238,10 +244,11 @@ void load_alias() {
 		//takes the rest of the string after the first space to store as aliasCommand
 		store = strtok(NULL, "\n");
 		if(store == NULL) {
-			printf("could not read .aliases\n");
+			printf("Alias: could not read .aliases\n");
 			empty_alias();
 			break;
-		} else {
+		} 
+		else {
 			strcpy(alias_map[index].aliasCommand, store);
 		}
 

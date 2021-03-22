@@ -17,14 +17,6 @@ void commands(char **tokens, char *path, int args);
 void checkAlias(char *str, char *line, char *path, int display);
 int quit(char *path);
 
-/*
- * Tim Enos
- * Adrian Pihlgren
- * Erin Allen
- * Karmen Tsang
- * Sudeep Dhakal
-*/
-
 
 int main(void) {
 
@@ -52,7 +44,8 @@ int main(void) {
 		is_invoked = 0;
 		if(feof(stdin)) { //CTRL+D == EXIT
             return quit(path);
-        } else if(is_alias(line) == 1) {
+        } 
+		else if(is_alias(line) == 1) {
 			is_invoked = 1;
 			char *command = malloc(sizeof(char) * max_buffer_size); //allocate the appropriate memory for the concatenation in the method
 			store = invoke_alias(line, command, is_invoked, display);
@@ -71,11 +64,13 @@ int main(void) {
 				free(command);
 				parse_input(line, path, 1);
 			}
-		} else if(line[0] == '!') {
+		} 
+		else if(line[0] == '!') {
 				invoked_hist = invoke_History(line);
 				//pass to function to see if it is alias
 				checkAlias(invoked_hist, line, path, display);
-		} else {
+		} 
+		else {
 			parse_input(line, path, is_invoked);
 		}
 	}
@@ -121,31 +116,38 @@ void commands(char **tokens, char *path, int args) {
 
 	if(strcmp(tokens[0], "exit") == 0) {
 		quit(path);
-	} else if (strcmp(tokens[0], "history") == 0) { // if user enters history
+	} 
+	else if (strcmp(tokens[0], "history") == 0) { // if user enters history
 		if(args > 1)  {                        //error message if the user inputs history + something
             printf("Invalid number of arguments. Usage: history\n");
 		} else {
 			print_History(); 
         }
-	} else if (strcmp(tokens[0], "cd") == 0)  { 
+	} 
+	else if (strcmp(tokens[0], "cd") == 0)  { 
 		if(args > 2) {                          // check for valid number of arguments
 			printf("Invalid number of arguments. Usage: cd [path]\n");
 		} else {
 			changedir(tokens, args);
 		}
-	} else if(strcmp(tokens[0], "alias") == 0) {
+	} 
+	else if(strcmp(tokens[0], "alias") == 0) {
 		 if(args == 1) {
 			print_alias();
 		} else {
 			add_alias(tokens, args);
 		}
-	} else if(strcmp(tokens[0], "unalias") == 0) {
+	} 
+	else if(strcmp(tokens[0], "unalias") == 0) {
 		remove_alias(tokens, args);
-	} else if(strcmp(tokens[0],"setpath") == 0) {
+	} 
+	else if(strcmp(tokens[0],"setpath") == 0) {
 		setPath(tokens, args);
-	} else if(strcmp(tokens[0],"getpath") == 0) {
+	} 
+	else if(strcmp(tokens[0],"getpath") == 0) {
 		getPath(args);
-	} else {
+	} 
+	else {
 		process(tokens, args);
 	}
 }
@@ -158,13 +160,15 @@ int process(char *tokens[max_array_size], int args) {
 	
 	if (pid < 0) {                         // error occurred
 		fprintf(stderr, "Fork Failed!");   // prints error if fork failed
-	} else if (pid == 0) {                 // if child process successful
+	} 
+	else if (pid == 0) {                 // if child process successful
+
 		if (execvp(tokens[0], tokens) == -1) { 
 			printf("shell: command not found %s\n", *tokens);
-			
 		}
 		exit(0);
-	} else {                               // parent process
+	} 
+	else {                               // parent process
 		pid = wait(NULL);                  // wait for child process
 	}
 	   return 1;
@@ -175,21 +179,26 @@ void setPath(char **tokens, int args) {
     if (tokens[1] == NULL) {                    // print " if nothing is entered after setpath
         printf("No arguments found. Usage: setpath [dir]\n");
         return;
-     }  else if (args > 2) {               // if more than one input print
+	} else if (args > 2) {               // if more than one input print
         printf("Invalid number of arguments. Usage: setpath [dir]\n");
 		return;
 	}
-    if (setenv("PATH", tokens[1], 1) == 0) {
+    
+
+	if (setenv("PATH", tokens[1], 1) == 0) {
         printf("PATH set successfully to %s\n", tokens[1]);
-    } else {
+    } 
+	else {
         printf("Error setting path variable\n");
     }
 }
 
 void getPath(int args) {
+	
 	if (args == 1) { // if no arguments
 		printf("PATH:%s\n", getenv("PATH"));
-	} else { // if more than one argument, print appropriate error message
+	} 
+	else { // if more than one argument, print appropriate error message
 		printf("Invalid number of arguments. Usage: getpath \n");
 	}
 }
@@ -198,9 +207,11 @@ int quit(char *path) {
 
   if (setenv("PATH", path, 1) == 0) {
         printf("PATH restored to %s\n", getenv("PATH"));
-    } else {
-        printf("Error restoring path variable\n");
-    }
+  } 
+  else {
+	  printf("Error restoring path variable\n");
+  }
+
     printf("Bye...\n");
 	save_history();
 	save_alias();
@@ -213,7 +224,8 @@ int changedir(char **tokens, int args) {
 	if(tokens[1] == NULL) {
 		chdir(getenv("HOME"));
 		return 1;
-	} else if(chdir(tokens[1]) == -1) {
+	} 
+	else if(chdir(tokens[1]) == -1) {
 		perror(tokens[1]);
 		return -1;
 	}
@@ -240,7 +252,8 @@ void checkAlias(char *invoked_hist, char *line, char *path, int display) {
 			free(command);
 			//parse aliased input
 			parse_input(line, path, is_invoked);
-		} else {
+		} 
+		else {
 			strcpy(line, invoked_hist);
 			parse_input(line, path, is_invoked);
 		}
