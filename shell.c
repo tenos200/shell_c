@@ -6,16 +6,26 @@
 #include <sys/types.h>
 #include <ctype.h>
 #include "history.h"
+#include <sys/wait.h>
 #include "alias.h"
 
 int parse_input(char *inp, char *path, int invoke);
 int process(char *tokens[max_array_size], int args);
 void getPath(int args);
-int changedir(char **tokens, int args);
+void changedir(char **tokens, int args);
 void setPath(char **tokens, int args);
 void commands(char **tokens, char *path, int args);
 void checkAlias(char *str, char *line, char *path, int display);
 int quit(char *path);
+
+/*
+ * Group 2
+ * Erin Allen
+ * Tim Enos
+ * Sudeep Dhakal
+ * Adrian Pihlgren
+ * Karmen Tsang
+*/
 
 
 int main(void) {
@@ -27,12 +37,9 @@ int main(void) {
 	char inp[max_buffer_size];
 	char *invoked_hist;
 	char *store;
-	//used to prevent multiple error messages begin displayed
-	int display;
+	int display; //used to prevent multiple error messages begin displayed
 	int is_invoked;
-	//sets starting directory as home
-	chdir(homedir);
-	//clear screen to look more like initalising shell
+	chdir(homedir); //sets starting directory as home
 	system("clear");
 	load_history();
 	load_alias();
@@ -47,7 +54,7 @@ int main(void) {
         } 
 		else if(is_alias(line) == 1) {
 			is_invoked = 1;
-			char *command = malloc(sizeof(char) * max_buffer_size); //allocate the appropriate memory for the concatenation in the method
+			char *command = malloc(sizeof(char) * max_buffer_size); //allocate the appropriate memory for the concatenation of alias command
 			store = invoke_alias(line, command, is_invoked, display);
 
 			if(store[0] == '!') {
@@ -193,6 +200,7 @@ void setPath(char **tokens, int args) {
     }
 }
 
+
 void getPath(int args) {
 	
 	if (args == 1) { // if no arguments
@@ -203,6 +211,7 @@ void getPath(int args) {
 	}
 }
 
+//method for exit of program, saves alias and history and restores path
 int quit(char *path) {
 
   if (setenv("PATH", path, 1) == 0) {
@@ -218,18 +227,15 @@ int quit(char *path) {
     exit(0);
 }
 
-//start on directory
-int changedir(char **tokens, int args) {
+void changedir(char **tokens, int args) {
 	//only needs to redirect to home
 	if(tokens[1] == NULL) {
 		chdir(getenv("HOME"));
-		return 1;
+
 	} 
 	else if(chdir(tokens[1]) == -1) {
 		perror(tokens[1]);
-		return -1;
 	}
-	return 0;
 }
 
 void checkAlias(char *invoked_hist, char *line, char *path, int display) {
@@ -259,3 +265,4 @@ void checkAlias(char *invoked_hist, char *line, char *path, int display) {
 		}
 	}
 }
+
