@@ -18,15 +18,6 @@ void commands(char **tokens, char *path, int args);
 void checkAlias(char *str, char *line, char *path, int display);
 int quit(char *path);
 
-/*
- * Group 2
- * Erin Allen
- * Tim Enos
- * Sudeep Dhakal
- * Adrian Pihlgren
- * Karmen Tsang
-*/
-
 
 int main(void) {
 

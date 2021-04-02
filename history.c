@@ -6,7 +6,6 @@
 #include <sys/types.h>
 #include <ctype.h>
 #include "history.h"
-//group 2
 
 //used to keep track of history count
 static int history_counter = 0;
