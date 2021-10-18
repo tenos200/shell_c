@@ -9,6 +9,7 @@
 #include <sys/wait.h>
 #include "alias.h"
 
+//shell made in C, different files where made for easier management
 int parse_input(char *inp, char *path, int invoke);
 int process(char *tokens[max_array_size], int args);
 void getPath(int args);
